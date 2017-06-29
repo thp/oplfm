@@ -40,13 +40,13 @@ while True:
     for pattern in sequence:
         for note in pattern:
             moog.note(note, 127)
-            bass.note(20+note/2, 120)
+            bass.note(int(20+note/2), 120)
             time.sleep(.01)
 
             organ.note(note+5, 100)
             time.sleep(.4)
 
-            bass.note(20+note/2, 0)
+            bass.note(int(20+note/2), 0)
             organ.note(note+5, 0)
             moog.note(note, 0)
             time.sleep(.01)
