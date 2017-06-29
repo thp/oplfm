@@ -5,6 +5,10 @@ OPL2/OPL3 emulation codebase ("woodyopl") on a high level, by
 exposing instruments (from AdLib Visual Composer) that can play
 notes using a single API function.
 
+## Demonstration Video
+
+<a href="https://youtu.be/s-CzMBlbT-o"><img src="demo.png" alt="Demo Video on YouTube" style="max-width: 100%;"></a>
+
 ## License
 
     oplfm: OPL2/OPL3 Instrument Toolkit for C and Python
