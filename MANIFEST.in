@@ -1,0 +1,5 @@
+include README.md
+include makefile
+recursive-include src *
+recursive-include include *
+recursive-include examples *
