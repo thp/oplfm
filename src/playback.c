@@ -170,14 +170,36 @@ void playback_cnote(struct playback_t *playback, uint8_t channel, uint8_t on, ui
 int playback_get_channel(struct playback_t *playback, int note, uint8_t velocity, struct instrument_t *instrument)
 {
     int i;
+    bool found = false;
+
+    // first, look for channels that already have the instrument set,
+    // this will let us avoid re-uploading the instrument settings
     for (i=0; i<9; i++) {
-        if (playback->channel_note_map[i] == -1) {
-            playback->channel_note_map[i] = note;
-            playback->channel_velocity_map[i] = velocity;
+        if (playback->channel_note_map[i] == -1 &&
+                playback->channel_instrument_map[i] == instrument) {
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        // then, try looking again for _ANY_ channel, will require a reupload
+        for (i=0; i<9; i++) {
+            if (playback->channel_note_map[i] == -1) {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (found) {
+        playback->channel_note_map[i] = note;
+        playback->channel_velocity_map[i] = velocity;
+        if (playback->channel_instrument_map[i] != instrument) {
             playback->channel_instrument_map[i] = instrument;
             playback_upload_instrument(playback, playback->channel_instrument_map[i], i);
-            return i;
         }
+        return i;
     }
 
     return -1;
@@ -190,7 +212,12 @@ int playback_put_channel(struct playback_t *playback, int note, struct instrumen
         if (playback->channel_note_map[i] == note && playback->channel_instrument_map[i] == instrument) {
             playback->channel_note_map[i] = -1;
             playback->channel_velocity_map[i] = 0;
-            playback->channel_instrument_map[i] = NULL;
+            // We keep playback->channel_instrument_map[i] here, even though
+            // the "instrument" object might be freed. But we will only ever
+            // compare the pointer to an incoming object pointer (to avoid
+            // instrument re-uploads), so it will never be dereferenced (it
+            // will compare equal to the incoming instrument object when it
+            // still exists)
             return i;
         }
     }
@@ -214,6 +241,7 @@ struct playback_t *playback_new(struct adlib_t *adlib)
     int i;
     for (i=0; i<9; i++) {
         playback->channel_note_map[i] = -1;
+        playback->channel_instrument_map[i] = NULL;
     }
 
     return playback;
