@@ -44,7 +44,6 @@ struct playback_t {
 
 struct playback_t *playback_new(struct adlib_t *adlib);
 void playback_upload_instrument(struct playback_t *playback, struct instrument_t *instrument, uint8_t channel);
-void playback_update_instruments(struct playback_t *playback);
 void playback_midi_note(struct playback_t *playback, uint16_t note, struct instrument_t *instrument, uint8_t velocity);
 void playback_all_notes_off(struct playback_t *playback);
 void playback_free(struct playback_t *playback);

@@ -265,25 +265,6 @@ void playback_all_notes_off(struct playback_t *playback)
     }
 }
 
-void playback_update_instruments(struct playback_t *playback)
-{
-#if 0
-    if (!playback->rhythm_mode) {
-        // load rhythm section
-        uint8_t bd = ((app->instrument->misc.amDepth & 1) << 7) |
-                     ((app->instrument->misc.vibDepth & 1) << 6);
-        ao(0xbd, bd);
-    }
-#endif
-
-    int i;
-    for (i=0; i<9; i++) {
-        if (playback->channel_instrument_map[i]) {
-            playback_upload_instrument(playback, playback->channel_instrument_map[i], i);
-        }
-    }
-}
-
 void playback_midi_note(struct playback_t *playback, uint16_t note, struct instrument_t *instrument, uint8_t velocity)
 {
     if (playback->rhythm_mode && instrument->misc.rhythmOn) {
