@@ -7,7 +7,7 @@ SOURCES = [
     'src/woody/woodyopl.cpp', 'src/woody/woody.cpp',
 ]
 
-setup(name='oplfm', version='1.0', description='OPL2/OPL3 Instrument Toolkit', license='GPL',
+setup(name='oplfm', version='1.1', description='OPL2/OPL3 Instrument Toolkit', license='GPL',
       author='Thomas Perl', author_email='m@thp.io',
       url='https://github.com/thp/oplfm',
       ext_modules=[Extension('oplfm', SOURCES, include_dirs=['include'], libraries=['portaudio'])])
