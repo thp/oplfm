@@ -127,12 +127,91 @@ pylist_append_string(const char *filename, void *user_data)
 }
 
 #if PY_MAJOR_VERSION >= 3
+static PyObject *
+pyoplfm_ao(PyObject *self, PyObject *args)
+{
+    int addr, value;
+
+    if (!PyArg_ParseTuple(args, "ii", &addr, &value)) {
+        return NULL;
+    }
+
+    {
+        // FIXME: Never freed
+        if (!g_oplfm) {
+            g_oplfm = oplfm_new();
+        }
+        g_oplfm_refcnt++;
+    }
+
+    oplfm_ao(g_oplfm, addr, value);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+_pyoplfm_monitor_obj = NULL;
+
+static void
+_pyoplfm_monitor_func(uint8_t addr, uint8_t value, void *user_data)
+{
+    PyObject *args = Py_BuildValue("(ii)", (int)addr, (int)value);
+    PyObject *result = PyObject_CallObject(_pyoplfm_monitor_obj, args);
+    Py_XDECREF(result);
+    Py_XDECREF(args);
+}
+
+static PyObject *
+pyoplfm_set_monitor(PyObject *self, PyObject *obj)
+{
+    Py_INCREF(obj);
+    Py_XDECREF(_pyoplfm_monitor_obj);
+    _pyoplfm_monitor_obj = obj;
+
+    {
+        // FIXME: Never freed
+        if (!g_oplfm) {
+            g_oplfm = oplfm_new();
+        }
+        g_oplfm_refcnt++;
+    }
+
+    if (obj == Py_None) {
+        oplfm_set_monitor(g_oplfm, NULL, NULL);
+        Py_XDECREF(obj);
+        _pyoplfm_monitor_obj = NULL;
+    } else {
+        oplfm_set_monitor(g_oplfm, _pyoplfm_monitor_func, NULL);
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pyoplfm_reset(PyObject *self, PyObject *obj)
+{
+    if (g_oplfm) {
+        oplfm_free(g_oplfm);
+        g_oplfm = oplfm_new();
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyMethodDef
+OplFMMethods[] = {
+    {"ao", pyoplfm_ao, METH_VARARGS, "Direct audio output."},
+    {"set_monitor", pyoplfm_set_monitor, METH_O, "Set port write monitor."},
+    {"reset", pyoplfm_reset, METH_NOARGS, "Reset the internal state (forget all instruments)."},
+    {NULL, NULL, 0, NULL},
+};
+
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
     "oplfm",
     NULL,
     -1,
-    NULL,
+    OplFMMethods,
 };
 #endif
 

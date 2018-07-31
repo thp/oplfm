@@ -29,6 +29,8 @@ extern "C" {
 #include "instrument.h"
 
 
+typedef void (*playback_monitor_func_t)(uint8_t addr, uint8_t value, void *user_data);
+
 struct playback_t {
     struct adlib_t *adlib;
     struct midi_notes_t *midi_notes;
@@ -39,13 +41,17 @@ struct playback_t {
 
     bool touch_sensitivity;
     bool rhythm_mode;
-};
 
+    playback_monitor_func_t monitor_func;
+    void *monitor_func_user_data;
+};
 
 struct playback_t *playback_new(struct adlib_t *adlib);
 void playback_upload_instrument(struct playback_t *playback, struct instrument_t *instrument, uint8_t channel);
 void playback_midi_note(struct playback_t *playback, uint16_t note, struct instrument_t *instrument, uint8_t velocity);
 void playback_all_notes_off(struct playback_t *playback);
+void playback_ao(struct playback_t *playback, uint8_t addr, uint8_t value);
+void playback_set_monitor(struct playback_t *playback, playback_monitor_func_t func, void *user_data);
 void playback_free(struct playback_t *playback);
 
 #ifdef __cplusplus

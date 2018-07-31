@@ -102,8 +102,6 @@ static const uint8_t channel_operator[9][2] = {
 
 
 
-static void playback_ao(struct playback_t *playback, uint8_t addr, uint8_t value);
-
 static void playback_adsr(struct playback_t *playback, uint8_t channel, uint8_t operator,
         uint8_t attack, uint8_t decay, uint8_t sustain, uint8_t release);
 
@@ -120,8 +118,17 @@ static int playback_put_channel(struct playback_t *playback, int note, struct in
 
 void playback_ao(struct playback_t *playback, uint8_t addr, uint8_t value)
 {
-    //printf(" %02x:  %03d\n", addr, value);
+    if (playback->monitor_func != NULL) {
+        playback->monitor_func(addr, value, playback->monitor_func_user_data);
+    }
+
     adlib_write(playback->adlib, addr, value);
+}
+
+void playback_set_monitor(struct playback_t *playback, playback_monitor_func_t func, void *user_data)
+{
+    playback->monitor_func = func;
+    playback->monitor_func_user_data = user_data;
 }
 
 void playback_adsr(struct playback_t *playback, uint8_t channel, uint8_t operator,
@@ -243,6 +250,9 @@ struct playback_t *playback_new(struct adlib_t *adlib)
         playback->channel_note_map[i] = -1;
         playback->channel_instrument_map[i] = NULL;
     }
+
+    playback->monitor_func = NULL;
+    playback->monitor_func_user_data = NULL;
 
     return playback;
 

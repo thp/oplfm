@@ -24,12 +24,17 @@ extern "C" {
 #endif
 
 #include <unistd.h>
+#include <stdint.h>
 
 typedef struct OPLFM OPLFM;
 typedef struct OPLFMInstrument OPLFMInstrument;
 
+typedef void (*oplfm_monitor_func_t)(uint8_t addr, uint8_t value, void *user_data);
+
 OPLFM *oplfm_new(void);
 void oplfm_note(OPLFM *oplfm, OPLFMInstrument *instrument, int note, int velocity);
+void oplfm_ao(OPLFM *oplfm, int addr, int value);
+void oplfm_set_monitor(OPLFM *oplfm, oplfm_monitor_func_t func, void *user_data);
 void oplfm_free(OPLFM *oplfm);
 
 OPLFMInstrument *oplfm_instrument_new(const char *name);

@@ -50,6 +50,16 @@ void oplfm_note(OPLFM *oplfm, OPLFMInstrument *instrument, int note, int velocit
     playback_midi_note(oplfm->playback, note, instrument->instrument, velocity);
 }
 
+void oplfm_ao(OPLFM *oplfm, int addr, int value)
+{
+    playback_ao(oplfm->playback, addr, value);
+}
+
+void oplfm_set_monitor(OPLFM *oplfm, oplfm_monitor_func_t func, void *user_data)
+{
+    playback_set_monitor(oplfm->playback, func, user_data);
+}
+
 void oplfm_free(OPLFM *oplfm)
 {
     playback_free(oplfm->playback);
